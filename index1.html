@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Web Master Clone</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        wa: {
+                            emerald: '#00a884',
+                            emeraldDark: '#008069',
+                            darkBg: '#111b21',
+                            darkHeader: '#202c33',
+                            darkHover: '#2a3942',
+                            darkPanel: '#111b21',
+                            darkBorder: '#222d34',
+                            lightBg: '#f0f2f5',
+                            lightHeader: '#f0f2f5',
+                            lightHover: '#f5f6f6',
+                            lightBorder: '#e9edef',
+                            accentBlue: '#34b7f1',
+                            accentPurple: '#7c3aed',
+                            accentGold: '#eab308'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.4);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.6);
+        }
+        /* Chat Wallpaper Styles */
+        .wp-doodles {
+            background-image: radial-gradient(#202c33 1px, transparent 1px), radial-gradient(#202c33 1px, #0b141a 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+        }
+        .wp-midnight { background-color: #0b141a; }
+        .wp-emerald { background: linear-gradient(135deg, #022c22 0%, #064e3b 100%); }
+        .wp-pastel { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
+        .wp-night { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); }
+        .light .wp-doodles {
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px), radial-gradient(#cbd5e1 1px, #efeae2 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+        }
+        /* Waveform Animation */
+        @keyframes wave {
+            0%, 100% { height: 4px; }
+            50% { height: 18px; }
+        }
+        .animate-wave-bar {
+            animation: wave 1.2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 h-screen w-screen overflow-hidden flex flex-col justify-center items-center">
+
+    <!-- APP CONTAINER -->
+    <div id="app-container" class="w-full h-full max-w-[1700px] max-h-[1000px] flex overflow-hidden shadow-2xl relative">
+        
+        <!-- ================= AUTH / LOGIN SCREEN ================= -->
+        <div id="auth-screen" class="absolute inset-0 bg-wa-darkBg light:bg-wa-lightBg z-50 flex flex-col items-center justify-center p-4">
+            <div class="bg-wa-darkHeader light:bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full border border-wa-darkBorder light:border-wa-lightBorder text-center">
+                <div class="w-20 h-20 bg-wa-emerald rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg text-white text-3xl">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </div>
+                <h1 class="text-2xl font-bold mb-2 text-white light:text-slate-800" id="tr-welcome">WhatsApp Web Clone</h1>
+                <p class="text-slate-400 light:text-slate-500 text-sm mb-6" id="tr-subtitle">Sign in to start messaging with features</p>
+                
+                <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4 text-left">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1" id="tr-lbl-name">Your Name</label>
+                        <input type="text" id="auth-name" required value="Alex Johnson" class="w-full bg-wa-darkBg light:bg-slate-100 border border-wa-darkBorder light:border-slate-300 rounded-lg p-2.5 text-sm text-slate-100 light:text-slate-800 focus:outline-none focus:border-wa-emerald">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1" id="tr-lbl-bio">About / Bio</label>
+                        <input type="text" id="auth-bio" value="Available | Coding..." class="w-full bg-wa-darkBg light:bg-slate-100 border border-wa-darkBorder light:border-slate-300 rounded-lg p-2.5 text-sm text-slate-100 light:text-slate-800 focus:outline-none focus:border-wa-emerald">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1" id="tr-lbl-avatar">Avatar URL (Optional)</label>
+                        <input type="url" id="auth-avatar" placeholder="https://..." value="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-full bg-wa-darkBg light:bg-slate-100 border border-wa-darkBorder light:border-slate-300 rounded-lg p-2.5 text-sm text-slate-100 light:text-slate-800 focus:outline-none focus:border-wa-emerald">
+                    </div>
+                    <button type="submit" class="w-full bg-wa-emerald hover:bg-wa-emeraldDark text-white font-medium py-3 rounded-lg shadow transition duration-200 mt-2 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-right-to-bracket"></i> <span id="tr-btn-login">Start Web Session</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ================= MAIN APP SIDEBAR ================= -->
+        <div id="main-sidebar" class="w-full md:w-96 lg:w-[420px] bg-wa-darkBg light:bg-white border-r border-wa-darkBorder light:border-wa-lightBorder flex flex-col h-full z-10 shrink-0">
+            <!-- Sidebar Header -->
+            <div class="h-16 bg-wa-darkHeader light:bg-wa-lightHeader px-4 flex items-center justify-between border-b border-wa-darkBorder light:border-wa-lightBorder">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="toggleProfileDrawer()">
+                    <img id="my-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-10 h-10 rounded-full object-cover border border-slate-600">
+                    <div>
+                        <h2 id="my-name-display" class="font-semibold text-sm text-slate-100 light:text-slate-800 leading-tight">Alex Johnson</h2>
+                        <span id="my-presence-badge" class="text-xs text-wa-emerald flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-wa-emerald"></span> <span id="my-presence-text">Online</span>
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Action Icons -->
+                <div class="flex items-center gap-1 text-slate-400 light:text-slate-600">
+                    <button onclick="switchTab('chats')" class="p-2.5 rounded-full hover:bg-wa-darkHover light:hover:bg-slate-200" title="Chats">
+                        <i class="fa-solid fa-message"></i>
+                    </button>
+                    <button onclick="switchTab('status')" class="p-2.5 rounded-full hover:bg-wa-darkHover light:hover:bg-slate-200 relative" title="Status">
+                        <i class="fa-solid fa-circle-notch"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-wa-emerald rounded-full"></span>
+                    </button>
+                    <button onclick="switchTab('calls')" class="p-2.5 rounded-full hover:bg-wa-darkHover light:hover:bg-slate-200" title="Calls">
+                        <i class="fa-solid fa-phone"></i>
+                    </button>
+                    <button onclick="openNewGroupModal()" class="p-2.5 rounded-full hover:bg-wa-darkHover light:hover:bg-slate-200" title="New Group">
+                        <i class="fa-solid fa-users"></i>
+                    </button>
+                    <button onclick="openSettingsModal()" class="p-2.5 rounded-full hover:bg-wa-darkHover light:hover:bg-slate-200" title="Settings">
+                        <i class="fa-solid fa-gear"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="p-2 bg-wa-darkBg light:bg-white">
+                <div class="bg-wa-darkHeader light:bg-slate-100 rounded-lg flex items-center px-3 py-1.5 border border-wa-darkBorder light:border-slate-200">
+                    <i class="fa-solid fa-magnifying-glass text-slate-400 text-sm mr-3"></i>
+                    <input type="text" id="search-input" oninput="filterChats(this.value)" placeholder="Search or start new chat" class="bg-transparent w-full text-sm text-slate-200 light:text-slate-800 focus:outline-none placeholder-slate-400">
+                </div>
+            </div>
+
+            <!-- TAB CONTENT CONTAINER -->
+            <div class="flex-1 overflow-y-auto relative">
+                
+                <!-- CHATS LIST TAB -->
+                <div id="tab-chats" class="tab-pane active divide-y divide-wa-darkBorder light:divide-wa-lightBorder">
+                    <!-- Dynamic Chats List Populated by JS -->
+                </div>
+
+                <!-- STATUS / STORIES TAB -->
+                <div id="tab-status" class="tab-pane hidden p-3 space-y-4">
+                    <div class="flex items-center gap-3 p-2 rounded-lg bg-wa-darkHeader light:bg-slate-100 cursor-pointer" onclick="openAddStatusModal()">
+                        <div class="relative">
+                            <img id="my-status-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-12 h-12 rounded-full object-cover">
+                            <span class="absolute bottom-0 right-0 bg-wa-emerald text-white rounded-full w-5 h-5 flex items-center justify-center text-xs border-2 border-wa-darkBg">+</span>
+                        </div>
+                        <div>
+                            <p class="font-medium text-sm text-slate-100 light:text-slate-800" id="tr-my-status">My Status</p>
+                            <p class="text-xs text-slate-400" id="tr-add-status-hint">Click to add status update</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-1" id="tr-recent-updates">Recent Updates</p>
+                        <div id="status-stories-list" class="space-y-2">
+                            <!-- Status updates injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CALLS TAB -->
+                <div id="tab-calls" class="tab-pane hidden p-3 divide-y divide-wa-darkBorder light:divide-wa-lightBorder" id="calls-list">
+                    <!-- Call history injected by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= CHAT AREA / CONVERSATION CONTAINER ================= -->
+        <div id="main-chat-area" class="flex-1 flex flex-col h-full bg-wa-darkBg light:bg-slate-200 relative hidden md:flex">
+            
+            <!-- Default Placeholder when no chat selected -->
+            <div id="no-chat-selected" class="absolute inset-0 bg-wa-darkHeader light:bg-slate-100 flex flex-col items-center justify-center text-center p-6 z-20">
+                <div class="w-28 h-28 bg-wa-darkBg light:bg-white rounded-full flex items-center justify-center text-slate-500 text-5xl mb-4 shadow-inner">
+                    <i class="fa-brands fa-whatsapp text-wa-emerald"></i>
+                </div>
+                <h2 class="text-2xl font-semibold text-slate-200 light:text-slate-700 mb-2" id="tr-ph-title">WhatsApp Web Clone</h2>
+                <p class="text-sm text-slate-400 max-w-md" id="tr-ph-desc">Send and receive messages with reactions, audio recording, stories, status updates, translated multi-language UI, and full custom wallpapers.</p>
+                <div class="mt-8 flex items-center gap-2 text-xs text-slate-500">
+                    <i class="fa-solid fa-lock"></i> <span id="tr-ph-e2e">End-to-end encrypted</span>
+                </div>
+            </div>
+
+            <!-- ACTIVE CHAT HEADER -->
+            <div id="chat-header" class="h-16 bg-wa-darkHeader light:bg-wa-lightHeader px-4 flex items-center justify-between border-b border-wa-darkBorder light:border-wa-lightBorder shrink-0 z-10">
+                <div class="flex items-center gap-3">
+                    <button onclick="closeChatMobile()" class="md:hidden text-slate-400 p-2">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <img id="chat-avatar" src="" class="w-10 h-10 rounded-full object-cover">
+                    <div>
+                        <h3 id="chat-title" class="font-semibold text-sm text-slate-100 light:text-slate-800">Contact Name</h3>
+                        <p id="chat-subtitle" class="text-xs text-slate-400">online</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 text-slate-400 light:text-slate-600">
+                    <button onclick="startVoiceCall()" class="p-2.5 rounded-full hover:bg-wa-darkHover light:hover:bg-slate-200" title="Voice Call">
+                        <i class="fa-solid fa-phone"></i>
+                    </button>
+                    <button onclick="startVideoCall()" class="p-2.5 rounded-full hover:bg-wa-darkHover light:hover:bg-slate-200" title="Video Call">
+                        <i class="fa-solid fa-video"></i>
+                    </button>
+                    <div class="h-4 w-px bg-slate-700 mx-1"></div>
+                    <button onclick="toggleChatSearch()" class="p-2.5 rounded-full hover:bg-wa-darkHover light:hover:bg-slate-200" title="Search in chat">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    <button onclick="openGroupOrContactInfo()" class="p-2.5 rounded-full hover:bg-wa-darkHover light:hover:bg-slate-200" title="Info">
+                        <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PINNED MESSAGE BANNER -->
+            <div id="pinned-banner" class="bg-wa-darkHeader light:bg-slate-100 border-b border-wa-darkBorder light:border-slate-300 px-4 py-2 text-xs flex items-center justify-between text-slate-300 light:text-slate-700 hidden">
+                <div class="flex items-center gap-2 truncate cursor-pointer" onclick="scrollToPinnedMessage()">
+                    <i class="fa-solid fa-thumbtack text-wa-emerald"></i>
+                    <span class="font-semibold" id="tr-pinned-label">Pinned Message:</span>
+                    <span id="pinned-text" class="truncate italic opacity-80">Message text...</span>
+                </div>
+                <button onclick="unpinCurrentMessage()" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- MESSAGES THREAD CONTAINER -->
+            <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 wp-doodles relative">
+                <!-- Messages rendered dynamically by JS -->
+            </div>
+
+            <!-- CHAT INPUT TOOLBAR -->
+            <div class="bg-wa-darkHeader light:bg-wa-lightHeader p-3 border-t border-wa-darkBorder light:border-wa-lightBorder flex items-center gap-2 shrink-0 z-10">
+                <div class="flex items-center gap-1 text-slate-400 light:text-slate-600">
+                    <button onclick="toggleEmojiPicker()" class="p-2.5 rounded-full hover:bg-wa-darkHover light:hover:bg-slate-200">
+                        <i class="fa-regular fa-face-smile text-lg"></i>
+                    </button>
+                    <button onclick="toggleAttachMenu()" class="p-2.5 rounded-full hover:bg-wa-darkHover light:hover:bg-slate-200 relative">
+                        <i class="fa-solid fa-paperclip text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Input box / Recording Bar -->
+                <div class="flex-1 relative">
+                    <input type="text" id="chat-input" onkeydown="handleInputKey(event)" placeholder="Type a message" class="w-full bg-wa-darkBg light:bg-white text-slate-100 light:text-slate-800 text-sm rounded-lg px-4 py-2.5 border border-wa-darkBorder light:border-slate-300 focus:outline-none">
+                    
+                    <!-- Voice Recording Overlay -->
+                    <div id="voice-recording-overlay" class="absolute inset-0 bg-wa-darkBg light:bg-white rounded-lg flex items-center px-4 justify-between hidden border border-red-500">
+                        <div class="flex items-center gap-3">
+                            <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
+                            <span id="recording-timer" class="font-mono text-xs text-red-400">00:00</span>
+                            <div class="flex items-center gap-1 h-4">
+                                <span class="w-1 bg-red-500 animate-wave-bar h-2"></span>
+                                <span class="w-1 bg-red-500 animate-wave-bar h-4"></span>
+                                <span class="w-1 bg-red-500 animate-wave-bar h-3"></span>
+                                <span class="w-1 bg-red-500 animate-wave-bar h-5"></span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="cancelVoiceRecording()" class="text-xs text-slate-400 hover:text-red-400 px-2 py-1"><i class="fa-solid fa-trash"></i> Cancel</button>
+                            <button onclick="stopAndSendVoiceRecording()" class="bg-wa-emerald text-white rounded-full p-2 hover:bg-wa-emeraldDark text-xs"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Button (Send or Mic) -->
+                <button id="send-btn" onclick="sendTextMessage()" class="bg-wa-emerald hover:bg-wa-emeraldDark text-white p-2.5 rounded-full flex items-center justify-center transition shadow">
+                    <i id="send-btn-icon" class="fa-solid fa-paper-plane"></i>
+                </button>
+                <button id="mic-btn" onclick="startVoiceRecording()" class="bg-wa-darkHover light:bg-slate-200 text-slate-300 light:text-slate-700 p-2.5 rounded-full flex items-center justify-center transition">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+            </div>
+
+            <!-- ATTACHMENT MENU POPUP -->
+            <div id="attach-menu" class="absolute bottom-16 left-12 bg-wa-darkHeader light:bg-white rounded-xl shadow-2xl border border-wa-darkBorder light:border-slate-200 p-2 space-y-1 hidden z-30">
+                <button onclick="openPollCreator()" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-200 light:text-slate-800 hover:bg-wa-darkHover light:hover:bg-slate-100 rounded-lg">
+                    <i class="fa-solid fa-chart-simple text-amber-500"></i> <span id="tr-attach-poll">Poll</span>
+                </button>
+                <button onclick="shareLocationCard()" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-200 light:text-slate-800 hover:bg-wa-darkHover light:hover:bg-slate-100 rounded-lg">
+                    <i class="fa-solid fa-location-dot text-red-500"></i> <span id="tr-attach-location">Location</span>
+                </button>
+                <button onclick="triggerQuickImageUpload()" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-200 light:text-slate-800 hover:bg-wa-darkHover light:hover:bg-slate-100 rounded-lg">
+                    <i class="fa-solid fa-image text-purple-500"></i> <span id="tr-attach-photo">Photos & Videos</span>
+                </button>
+            </div>
+
+            <!-- EMOJI PICKER POPUP -->
+            <div id="emoji-picker" class="absolute bottom-16 left-4 bg-wa-darkHeader light:bg-white rounded-xl shadow-2xl border border-wa-darkBorder light:border-slate-200 p-3 hidden z-30 max-w-xs">
+                <div class="grid grid-cols-6 gap-2 text-xl cursor-pointer">
+                    <span onclick="insertEmoji('😀')">😀</span>
+                    <span onclick="insertEmoji('😂')">😂</span>
+                    <span onclick="insertEmoji('❤️')">❤️</span>
+                    <span onclick="insertEmoji('👍')">👍</span>
+                    <span onclick="insertEmoji('🔥')">🔥</span>
+                    <span onclick="insertEmoji('🎉')">🎉</span>
+                    <span onclick="insertEmoji('🙏')">🙏</span>
+                    <span onclick="insertEmoji('😮')">😮</span>
+                    <span onclick="insertEmoji('😢')">😢</span>
+                    <span onclick="insertEmoji('✨')">✨</span>
+                    <span onclick="insertEmoji('😎')">😎</span>
+                    <span onclick="insertEmoji('🚀')">🚀</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODALS & DRAWERS ================= -->
+
+    <!-- MESSAGE EDIT MODAL -->
+    <div id="edit-msg-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-wa-darkHeader light:bg-white rounded-xl max-w-md w-full p-6 border border-wa-darkBorder shadow-2xl">
+            <h3 class="text-lg font-semibold mb-4 text-white light:text-slate-800" id="tr-edit-title">Edit Message</h3>
+            <textarea id="edit-msg-input" rows="3" class="w-full bg-wa-darkBg light:bg-slate-100 border border-wa-darkBorder light:border-slate-300 rounded-lg p-3 text-slate-100 light:text-slate-800 focus:outline-none text-sm"></textarea>
+            <div class="flex justify-end gap-3 mt-4">
+                <button onclick="closeModal('edit-msg-modal')" class="px-4 py-2 text-sm text-slate-400 hover:text-white" id="tr-btn-cancel">Cancel</button>
+                <button onclick="submitMessageEdit()" class="px-4 py-2 text-sm bg-wa-emerald hover:bg-wa-emeraldDark text-white rounded-lg" id="tr-btn-save">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORWARD MESSAGE MODAL -->
+    <div id="forward-msg-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-wa-darkHeader light:bg-white rounded-xl max-w-md w-full p-6 border border-wa-darkBorder shadow-2xl">
+            <h3 class="text-lg font-semibold mb-4 text-white light:text-slate-800" id="tr-forward-title">Forward Message To</h3>
+            <div id="forward-contacts-list" class="max-h-60 overflow-y-auto divide-y divide-wa-darkBorder mb-4">
+                <!-- Forward targets injected by JS -->
+            </div>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeModal('forward-msg-modal')" class="px-4 py-2 text-sm text-slate-400 hover:text-white" id="tr-btn-cancel2">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STORY VIEWER FULLSCREEN MODAL -->
+    <div id="story-viewer-modal" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-between p-4 hidden">
+        <!-- Story Progress Bar -->
+        <div class="w-full max-w-md bg-slate-800 h-1 rounded-full overflow-hidden my-2">
+            <div id="story-progress" class="bg-white h-full w-0 transition-all duration-100"></div>
+        </div>
+
+        <div class="w-full max-w-md flex items-center justify-between text-white text-sm">
+            <div class="flex items-center gap-3">
+                <img id="story-viewer-avatar" src="" class="w-9 h-9 rounded-full object-cover">
+                <div>
+                    <p id="story-viewer-name" class="font-semibold"></p>
+                    <p id="story-viewer-time" class="text-xs text-slate-400"></p>
+                </div>
+            </div>
+            <button onclick="closeStoryViewer()" class="p-2 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+
+        <!-- Story Content Card -->
+        <div id="story-viewer-card" class="w-full max-w-md flex-1 my-4 bg-slate-900 rounded-2xl flex items-center justify-center p-6 text-center text-white relative overflow-hidden border border-slate-800">
+            <p id="story-text-content" class="text-xl font-bold max-w-xs leading-relaxed"></p>
+        </div>
+
+        <!-- Story Interaction Controls -->
+        <div class="w-full max-w-md space-y-3">
+            <div class="flex items-center justify-between text-slate-300 text-xs px-2">
+                <button onclick="openViewerListDrawer()" class="flex items-center gap-1.5 hover:text-white">
+                    <i class="fa-solid fa-eye text-wa-emerald"></i> <span id="story-views-count">0 views</span>
+                </button>
+                <button id="story-like-btn" onclick="toggleStoryLike()" class="p-2 text-lg hover:scale-125 transition">
+                    <i class="fa-regular fa-heart"></i>
+                </button>
+            </div>
+
+            <!-- Quick Reply Input -->
+            <div class="flex items-center gap-2">
+                <input type="text" id="story-reply-input" onkeydown="handleStoryReplyKey(event)" placeholder="Reply to story..." class="flex-1 bg-slate-800 text-white text-sm rounded-full px-4 py-2 focus:outline-none border border-slate-700">
+                <button onclick="sendStoryReply()" class="bg-wa-emerald text-white rounded-full p-2 hover:bg-wa-emeraldDark text-sm"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STORY VIEWER LIST DRAWER MODAL -->
+    <div id="story-viewers-drawer" class="fixed inset-0 bg-black/70 z-50 flex items-end justify-center hidden" onclick="closeViewerListDrawer()">
+        <div class="bg-wa-darkHeader light:bg-white rounded-t-2xl max-w-md w-full p-6 border-t border-wa-darkBorder" onclick="event.stopPropagation()">
+            <h4 class="font-semibold text-white light:text-slate-800 mb-3 text-sm flex items-center justify-between">
+                <span>Viewed by</span>
+                <button onclick="closeViewerListDrawer()"><i class="fa-solid fa-xmark"></i></button>
+            </h4>
+            <div id="story-viewers-list" class="space-y-3 max-h-60 overflow-y-auto">
+                <!-- Viewer list injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD STATUS MODAL -->
+    <div id="add-status-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-wa-darkHeader light:bg-white rounded-xl max-w-md w-full p-6 border border-wa-darkBorder shadow-2xl">
+            <h3 class="text-lg font-semibold mb-4 text-white light:text-slate-800">Add New Status</h3>
+            <textarea id="status-text-input" rows="3" placeholder="What's on your mind?" class="w-full bg-wa-darkBg light:bg-slate-100 border border-wa-darkBorder light:border-slate-300 rounded-lg p-3 text-slate-100 light:text-slate-800 focus:outline-none text-sm mb-3"></textarea>
+            
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-xs text-slate-400">Background Color:</span>
+                <div class="flex gap-2">
+                    <button onclick="setStatusBg('#064e3b')" class="w-6 h-6 rounded-full bg-emerald-900 ring-2 ring-white"></button>
+                    <button onclick="setStatusBg('#7c3aed')" class="w-6 h-6 rounded-full bg-purple-600"></button>
+                    <button onclick="setStatusBg('#b91c1c')" class="w-6 h-6 rounded-full bg-red-700"></button>
+                    <button onclick="setStatusBg('#1e3a8a')" class="w-6 h-6 rounded-full bg-blue-900"></button>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button onclick="closeModal('add-status-modal')" class="px-4 py-2 text-sm text-slate-400">Cancel</button>
+                <button onclick="submitNewStatus()" class="px-4 py-2 text-sm bg-wa-emerald text-white rounded-lg">Post Status</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MESSAGE INFO / WHO READ MY MESSAGE MODAL -->
+    <div id="msg-info-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-wa-darkHeader light:bg-white rounded-xl max-w-md w-full p-6 border border-wa-darkBorder shadow-2xl">
+            <h3 class="text-lg font-semibold mb-2 text-white light:text-slate-800" id="tr-info-title">Message Info</h3>
+            <div id="msg-info-preview" class="p-3 bg-wa-darkBg rounded-lg text-xs text-slate-300 italic mb-4"></div>
+            
+            <div class="space-y-4">
+                <div>
+                    <p class="text-xs font-semibold text-wa-emerald uppercase mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-check-double text-blue-400"></i> Read By
+                    </p>
+                    <div id="msg-info-read-list" class="space-y-2 max-h-32 overflow-y-auto text-xs text-slate-300"></div>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-check-double text-slate-400"></i> Delivered To
+                    </p>
+                    <div id="msg-info-delivered-list" class="space-y-2 max-h-32 overflow-y-auto text-xs text-slate-400"></div>
+                </div>
+            </div>
+
+            <div class="flex justify-end mt-4">
+                <button onclick="closeModal('msg-info-modal')" class="px-4 py-2 text-sm bg-wa-darkHover text-white rounded-lg">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- POLL CREATOR MODAL -->
+    <div id="poll-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-wa-darkHeader light:bg-white rounded-xl max-w-md w-full p-6 border border-wa-darkBorder shadow-2xl">
+            <h3 class="text-lg font-semibold mb-4 text-white light:text-slate-800">Create Poll</h3>
+            <input type="text" id="poll-question" placeholder="Ask a question..." class="w-full bg-wa-darkBg light:bg-slate-100 border border-wa-darkBorder rounded-lg p-2.5 text-sm mb-3 text-white light:text-slate-800 focus:outline-none">
+            <div id="poll-options-container" class="space-y-2 mb-4">
+                <input type="text" class="poll-opt-input w-full bg-wa-darkBg light:bg-slate-100 border border-wa-darkBorder rounded-lg p-2 text-xs text-white light:text-slate-800" placeholder="Option 1">
+                <input type="text" class="poll-opt-input w-full bg-wa-darkBg light:bg-slate-100 border border-wa-darkBorder rounded-lg p-2 text-xs text-white light:text-slate-800" placeholder="Option 2">
+            </div>
+            <button onclick="addPollOptionField()" class="text-xs text-wa-emerald mb-4 hover:underline flex items-center gap-1">+ Add Option</button>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeModal('poll-modal')" class="px-4 py-2 text-sm text-slate-400">Cancel</button>
+                <button onclick="submitPoll()" class="px-4 py-2 text-sm bg-wa-emerald text-white rounded-lg">Create Poll</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW GROUP MODAL -->
+    <div id="new-group-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-wa-darkHeader light:bg-white rounded-xl max-w-md w-full p-6 border border-wa-darkBorder shadow-2xl">
+            <h3 class="text-lg font-semibold mb-4 text-white light:text-slate-800">Create New Group</h3>
+            <input type="text" id="group-name-input" placeholder="Group Subject" class="w-full bg-wa-darkBg border border-wa-darkBorder rounded-lg p-2.5 text-sm text-white mb-4">
+            <p class="text-xs text-slate-400 mb-2">Select Participants:</p>
+            <div id="group-contacts-selection" class="max-h-48 overflow-y-auto space-y-2 mb-4">
+                <!-- Selectable contacts list -->
+            </div>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeModal('new-group-modal')" class="px-4 py-2 text-sm text-slate-400">Cancel</button>
+                <button onclick="submitCreateGroup()" class="px-4 py-2 text-sm bg-wa-emerald text-white rounded-lg">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS MODAL (THEMES, LANGUAGE, WALLPAPERS) -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-wa-darkHeader light:bg-white rounded-xl max-w-lg w-full p-6 border border-wa-darkBorder shadow-2xl max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6 border-b border-wa-darkBorder pb-3">
+                <h3 class="text-lg font-semibold text-white light:text-slate-800" id="tr-settings-title">Settings</h3>
+                <button onclick="closeModal('settings-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Theme Switcher -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2" id="tr-theme-label">Theme Mode</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="setTheme('dark')" class="p-3 border border-wa-darkBorder rounded-lg flex items-center gap-3 text-sm text-white hover:border-wa-emerald">
+                            <i class="fa-solid fa-moon text-wa-emerald"></i> Dark Mode
+                        </button>
+                        <button onclick="setTheme('light')" class="p-3 border border-wa-darkBorder rounded-lg flex items-center gap-3 text-sm text-white light:text-slate-800 hover:border-wa-emerald">
+                            <i class="fa-solid fa-sun text-amber-500"></i> Light Mode
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Language Selector -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2" id="tr-lang-label">Language</label>
+                    <select id="lang-select" onchange="changeLanguage(this.value)" class="w-full bg-wa-darkBg light:bg-slate-100 border border-wa-darkBorder rounded-lg p-2.5 text-sm text-white light:text-slate-800 focus:outline-none">
+                        <option value="en">English</option>
+                        <option value="ur">Urdu (اردو)</option>
+                        <option value="hi">Hindi (हिंदी)</option>
+                        <option value="es">Spanish (Español)</option>
+                        <option value="ar">Arabic (العربية)</option>
+                    </select>
+                </div>
+
+                <!-- Wallpaper Picker -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2" id="tr-wallpaper-label">Chat Wallpaper</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="setWallpaper('wp-doodles')" class="p-3 rounded-lg border border-wa-darkBorder text-xs text-white text-center bg-slate-800">Doodles</button>
+                        <button onclick="setWallpaper('wp-midnight')" class="p-3 rounded-lg border border-wa-darkBorder text-xs text-white text-center bg-slate-950">Midnight</button>
+                        <button onclick="setWallpaper('wp-emerald')" class="p-3 rounded-lg border border-wa-darkBorder text-xs text-white text-center bg-emerald-950">Emerald</button>
+                        <button onclick="setWallpaper('wp-pastel')" class="p-3 rounded-lg border border-wa-darkBorder text-xs text-slate-800 text-center bg-amber-100">Pastel</button>
+                        <button onclick="setWallpaper('wp-night')" class="p-3 rounded-lg border border-wa-darkBorder text-xs text-white text-center bg-indigo-950">Night Sky</button>
+                    </div>
+                </div>
+
+                <!-- Accent Color Picker -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2" id="tr-accent-label">Accent Highlight</label>
+                    <div class="flex gap-3">
+                        <button onclick="setAccent('#00a884')" class="w-8 h-8 rounded-full bg-emerald-500 ring-2 ring-white"></button>
+                        <button onclick="setAccent('#34b7f1')" class="w-8 h-8 rounded-full bg-sky-400"></button>
+                        <button onclick="setAccent('#7c3aed')" class="w-8 h-8 rounded-full bg-purple-600"></button>
+                        <button onclick="setAccent('#eab308')" class="w-8 h-8 rounded-full bg-yellow-500"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VOICE/VIDEO CALL OVERLAY MODAL -->
+    <div id="call-overlay" class="fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-between p-8 hidden">
+        <div class="text-center mt-6">
+            <img id="call-avatar" src="" class="w-24 h-24 rounded-full object-cover mx-auto mb-4 border-4 border-slate-700 animate-pulse">
+            <h3 id="call-name" class="text-xl font-bold text-white mb-1">Contact Name</h3>
+            <p id="call-status" class="text-sm text-wa-emerald font-mono">Calling...</p>
+        </div>
+
+        <!-- Simulated Video Feed Frame -->
+        <div id="video-feed-frame" class="w-full max-w-lg h-64 bg-slate-900 rounded-2xl border border-slate-800 flex items-center justify-center relative overflow-hidden hidden">
+            <i class="fa-solid fa-user text-6xl text-slate-700"></i>
+            <div class="absolute bottom-2 right-2 w-20 h-28 bg-slate-800 rounded-lg border border-slate-700 flex items-center justify-center">
+                <i class="fa-solid fa-video text-slate-500"></i>
+            </div>
+        </div>
+
+        <!-- Call Controls -->
+        <div class="flex items-center gap-6 mb-8">
+            <button onclick="toggleMuteCall()" id="call-mute-btn" class="w-12 h-12 rounded-full bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-lg">
+                <i class="fa-solid fa-microphone-slash"></i>
+            </button>
+            <button onclick="endCall()" class="w-16 h-16 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-2xl shadow-lg">
+                <i class="fa-solid fa-phone-slash"></i>
+            </button>
+            <button onclick="toggleCallVideo()" id="call-vid-btn" class="w-12 h-12 rounded-full bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-lg">
+                <i class="fa-solid fa-video"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        // --- DATA STATE MANAGEMENT ---
+        const DEFAULT_STATE = {
+            currentUser: {
+                name: 'Alex Johnson',
+                bio: 'Available | Coding...',
+                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+                presence: 'Online'
+            },
+            theme: 'dark',
+            language: 'en',
+            wallpaper: 'wp-doodles',
+            accent: '#00a884',
+            activeChatId: null,
+            editingMsgId: null,
+            storyViewerBg: '#064e3b',
+            chats: [
+                {
+                    id: 'chat-1',
+                    name: 'Sarah Connor',
+                    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
+                    isGroup: false,
+                    online: true,
+                    unread: 1,
+                    members: [],
+                    pinnedMsgId: null,
+                    messages: [
+                        { id: 'm1', sender: 'them', text: 'Hey Alex! Did you check out the new WhatsApp updates?', time: '2:10 PM', status: 'read', reactions: {} },
+                        { id: 'm2', sender: 'me', text: 'Yes! Fully responsive and feature packed.', time: '2:12 PM', status: 'read', reactions: { '❤️': 1 } }
+                    ]
+                },
+                {
+                    id: 'chat-2',
+                    name: 'Tech Lead Squad',
+                    avatar: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=150',
+                    isGroup: true,
+                    online: true,
+                    unread: 0,
+                    members: ['Alex', 'Sarah', 'Michael', 'Emma', 'David'],
+                    pinnedMsgId: null,
+                    messages: [
+                        { id: 'm3', sender: 'them', text: 'Michael: Code review is ready guys.', time: '1:45 PM', status: 'read', reactions: {} },
+                        { id: 'm4', sender: 'me', text: 'On it!', time: '1:50 PM', status: 'read', reactions: {} }
+                    ]
+                }
+            ],
+            statusStories: [
+                {
+                    id: 'st-1',
+                    userName: 'Sarah Connor',
+                    userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
+                    time: '10 mins ago',
+                    text: 'Coffee and coding session ☕⚡',
+                    liked: false,
+                    views: [
+                        { name: 'Alex Johnson', time: 'Seen at 2:15 PM' },
+                        { name: 'Michael Tech', time: 'Seen at 2:00 PM' }
+                    ]
+                }
+            ],
+            calls: [
+                { id: 'c1', name: 'Sarah Connor', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150', time: 'Today, 2:00 PM', type: 'incoming', missed: false }
+            ]
+        };
+
+        let state = JSON.parse(localStorage.getItem('wa_master_clone_state')) || DEFAULT_STATE;
+
+        // Translation Dictionary
+        const TRANSLATIONS = {
+            en: {
+                welcome: "WhatsApp Web Clone",
+                subtitle: "Sign in to start messaging with features",
+                lblName: "Your Name",
+                lblBio: "About / Bio",
+                lblAvatar: "Avatar URL",
+                btnLogin: "Start Web Session",
+                myStatus: "My Status",
+                addStatusHint: "Click to add status update",
+                recentUpdates: "Recent Updates",
+                phTitle: "WhatsApp Web Clone",
+                phDesc: "Send and receive messages with reactions, audio recording, stories, status updates, translated multi-language UI, and full custom wallpapers.",
+                phE2e: "End-to-end encrypted",
+                pinnedLabel: "Pinned Message:",
+                editTitle: "Edit Message",
+                forwardTitle: "Forward Message To",
+                infoTitle: "Message Info",
+                attachPoll: "Poll",
+                attachLocation: "Location",
+                attachPhoto: "Photos & Videos",
+                settingsTitle: "Settings",
+                themeLabel: "Theme Mode",
+                langLabel: "Language",
+                wallpaperLabel: "Chat Wallpaper",
+                accentLabel: "Accent Highlight",
+                cancel: "Cancel",
+                save: "Save"
+            },
+            ur: {
+                welcome: "واٹس ایپ ویب کلون",
+                subtitle: "خصوصیات کے ساتھ پیغامات شروع کرنے کے لیے سائن ان کریں",
+                lblName: "آپ کا نام",
+                lblBio: "تعارف",
+                lblAvatar: "تصویر کا لنک",
+                btnLogin: "ویب سیشن شروع کریں",
+                myStatus: "میرا سٹیٹس",
+                addStatusHint: "سٹیٹس اپ ڈیٹ شامل کرنے کے لیے کلک کریں",
+                recentUpdates: "حالیہ اپ ڈیٹس",
+                phTitle: "واٹس ایپ ویب کلون",
+                phDesc: "پیغامات بھیجیں اور حاصل کریں تمام جدید خصوصیات کے ساتھ۔",
+                phE2e: "اینڈ ٹو اینڈ انکرپٹڈ",
+                pinnedLabel: "پن شدہ پیغام:",
+                editTitle: "پیغام میں ترمیم کریں",
+                forwardTitle: "پیغام فارورڈ کریں",
+                infoTitle: "پیغام کی تفصیلات",
+                attachPoll: "پول",
+                attachLocation: "مقام",
+                attachPhoto: "تصاویر اور ویڈیوز",
+                settingsTitle: "سیٹنگز",
+                themeLabel: "تھیم موڈ",
+                langLabel: "زبان",
+                wallpaperLabel: "وال پیپر",
+                accentLabel: "رنگ منتخب کریں",
+                cancel: "منسوخ",
+                save: "محفوظ کریں"
+            },
+            hi: {
+                welcome: "व्हाट्सएप वेब क्लोन",
+                subtitle: "मैसेजिंग शुरू करने के लिए साइन इन करें",
+                lblName: "आपका नाम",
+                lblBio: "बायो",
+                lblAvatar: "प्रोफाइल फोटो URL",
+                btnLogin: "वेब सेशन शुरू करें",
+                myStatus: "मेरा स्टेटस",
+                addStatusHint: "स्टेटस जोड़ने के लिए क्लिक करें",
+                recentUpdates: "हाल के अपडेट",
+                phTitle: "व्हाट्सएप वेब क्लोन",
+                phDesc: "सभी सुविधाओं के साथ संदेश भेजें और प्राप्त करें।",
+                phE2e: "एंड-टू-एंड एन्क्रिप्टेड",
+                pinnedLabel: "पिन किया गया संदेश:",
+                editTitle: "संदेश संपादित करें",
+                forwardTitle: "संदेश फॉरवर्ड करें",
+                infoTitle: "संदेश जानकारी",
+                attachPoll: "पोल",
+                attachLocation: "स्थान",
+                attachPhoto: "फोटो और वीडियो",
+                settingsTitle: "सेटिंग्स",
+                themeLabel: "थीम मोड",
+                langLabel: "भाषा",
+                wallpaperLabel: "वॉलपेपर",
+                accentLabel: "रंग चुनें",
+                cancel: "रद्द करें",
+                save: "सहेजें"
+            },
+            es: {
+                welcome: "Clon de WhatsApp Web",
+                subtitle: "Inicia sesión para comenzar a enviar mensajes",
+                lblName: "Tu Nombre",
+                lblBio: "Acerca de",
+                lblAvatar: "URL de Avatar",
+                btnLogin: "Iniciar Sesión Web",
+                myStatus: "Mi Estado",
+                addStatusHint: "Haz clic para añadir estado",
+                recentUpdates: "Actualizaciones Recientes",
+                phTitle: "Clon de WhatsApp Web",
+                phDesc: "Envía y recibe mensajes con todas las funciones.",
+                phE2e: "Cifrado de extremo a extremo",
+                pinnedLabel: "Mensaje Fijado:",
+                editTitle: "Editar Mensaje",
+                forwardTitle: "Reenviar Mensaje A",
+                infoTitle: "Info del Mensaje",
+                attachPoll: "Encuesta",
+                attachLocation: "Ubicación",
+                attachPhoto: "Fotos y Videos",
+                settingsTitle: "Ajustes",
+                themeLabel: "Modo de Tema",
+                langLabel: "Idioma",
+                wallpaperLabel: "Fondo de Pantalla",
+                accentLabel: "Color de Acento",
+                cancel: "Cancelar",
+                save: "Guardar"
+            },
+            ar: {
+                welcome: "واتساب ويب كلون",
+                subtitle: "تسجيل الدخول لبدء المراسلة",
+                lblName: "اسمك",
+                lblBio: "نبذة",
+                lblAvatar: "رابط الصورة",
+                btnLogin: "بدء الجلسة",
+                myStatus: "حالاتي",
+                addStatusHint: "انقر لإضافة حالة جديدة",
+                recentUpdates: "التحديثات الأخيرة",
+                phTitle: "واتساب ويب كلون",
+                phDesc: "إرسال واستقبال الرسائل بجميع الميزات.",
+                phE2e: "مشفر من الطرفين",
+                pinnedLabel: "رسالة مثبتة:",
+                editTitle: "تعديل الرسالة",
+                forwardTitle: "إعادة توجيه إلى",
+                infoTitle: "معلومات الرسالة",
+                attachPoll: "استطلاع",
+                attachLocation: "الموقع",
+                attachPhoto: "الصور والفيديوهات",
+                settingsTitle: "الإعدادات",
+                themeLabel: "السمة",
+                langLabel: "اللغة",
+                wallpaperLabel: "خلفية الدردشة",
+                accentLabel: "اللون المميز",
+                cancel: "إلغاء",
+                save: "حفظ"
+            }
+        };
+
+        // Audio Recorder State
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordStartTime = 0;
+        let recordTimerInterval = null;
+
+        // Current Active Story View
+        let activeStoryIndex = null;
+        let storyProgressInterval = null;
+
+        // --- INITIALIZATION ---
+        window.onload = function() {
+            applySavedState();
+            renderChatsList();
+            renderStatusList();
+            renderCallsList();
+            updateUI();
+        };
+
+        function saveState() {
+            localStorage.setItem('wa_master_clone_state', JSON.stringify(state));
+        }
+
+        function applySavedState() {
+            // Check auth
+            if (state.currentUser.name) {
+                document.getElementById('auth-screen').classList.add('hidden');
+            }
+            document.getElementById('my-name-display').innerText = state.currentUser.name;
+            document.getElementById('my-avatar').src = state.currentUser.avatar;
+            document.getElementById('my-status-avatar').src = state.currentUser.avatar;
+
+            // Apply Theme
+            if (state.theme === 'light') {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.add('light');
+            } else {
+                document.documentElement.classList.remove('light');
+                document.documentElement.classList.add('dark');
+            }
+
+            // Apply Language
+            document.getElementById('lang-select').value = state.language;
+            applyTranslations(state.language);
+        }
+
+        // --- AUTHENTICATION ---
+        function handleAuth(e) {
+            e.preventDefault();
+            const name = document.getElementById('auth-name').value;
+            const bio = document.getElementById('auth-bio').value;
+            const avatar = document.getElementById('auth-avatar').value || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+
+            state.currentUser = { name, bio, avatar, presence: 'Online' };
+            saveState();
+            applySavedState();
+            showToast('Welcome ' + name + '!');
+        }
+
+        // --- TAB NAVIGATION ---
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+        }
+
+        // --- RENDER CHATS LIST ---
+        function renderChatsList() {
+            const container = document.getElementById('tab-chats');
+            container.innerHTML = '';
+
+            state.chats.forEach(chat => {
+                const lastMsg = chat.messages[chat.messages.length - 1] || { text: 'No messages yet', time: '' };
+                const isActive = chat.id === state.activeChatId;
+
+                const item = document.createElement('div');
+                item.className = `flex items-center gap-3 p-3 cursor-pointer hover:bg-wa-darkHover light:hover:bg-slate-100 transition ${isActive ? 'bg-wa-darkHover light:bg-slate-100' : ''}`;
+                item.onclick = () => selectChat(chat.id);
+
+                item.innerHTML = `
+                    <div class="relative shrink-0">
+                        <img src="${chat.avatar}" class="w-12 h-12 rounded-full object-cover">
+                        ${chat.online ? '<span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-wa-emerald border-2 border-wa-darkBg"></span>' : ''}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-baseline mb-1">
+                            <h4 class="font-semibold text-sm text-slate-100 light:text-slate-800 truncate">${chat.name}</h4>
+                            <span class="text-xs text-slate-400 shrink-0">${lastMsg.time}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs text-slate-400">
+                            <p class="truncate pr-2">${lastMsg.deleted ? '<i>This message was deleted</i>' : (lastMsg.text || 'Audio message')}</p>
+                            ${chat.unread > 0 ? `<span class="bg-wa-emerald text-white rounded-full px-1.5 py-0.5 text-[10px] font-bold">${chat.unread}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // --- SELECT & RENDER ACTIVE CHAT ---
+        function selectChat(chatId) {
+            state.activeChatId = chatId;
+            const chat = state.chats.find(c => c.id === chatId);
+            if (!chat) return;
+
+            chat.unread = 0; // Mark as read
+            saveState();
+
+            document.getElementById('no-chat-selected').classList.add('hidden');
+            document.getElementById('chat-avatar').src = chat.avatar;
+            document.getElementById('chat-title').innerText = chat.name;
+
+            if (chat.isGroup) {
+                document.getElementById('chat-subtitle').innerText = `${chat.members.join(', ')} • ${chat.members.length} members, 3 online`;
+            } else {
+                document.getElementById('chat-subtitle').innerText = chat.online ? 'online' : 'offline';
+            }
+
+            // Apply Chat Wallpaper
+            const msgBox = document.getElementById('messages-container');
+            msgBox.className = `flex-1 overflow-y-auto p-4 space-y-3 ${state.wallpaper} relative`;
+
+            renderMessages();
+            renderChatsList();
+        }
+
+        // --- RENDER MESSAGES ---
+        function renderMessages() {
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            if (!chat) return;
+
+            const container = document.getElementById('messages-container');
+            container.innerHTML = '';
+
+            // Handle Pinned Message Header Banner
+            if (chat.pinnedMsgId) {
+                const pinnedMsg = chat.messages.find(m => m.id === chat.pinnedMsgId);
+                if (pinnedMsg) {
+                    document.getElementById('pinned-banner').classList.remove('hidden');
+                    document.getElementById('pinned-text').innerText = pinnedMsg.text || 'Audio / Poll Content';
+                }
+            } else {
+                document.getElementById('pinned-banner').classList.add('hidden');
+            }
+
+            chat.messages.forEach(msg => {
+                const isMe = msg.sender === 'me';
+                const wrapper = document.createElement('div');
+                wrapper.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} group relative my-1`;
+                wrapper.id = `msg-${msg.id}`;
+
+                let contentHtml = '';
+
+                if (msg.deleted) {
+                    contentHtml = `<p class="italic text-slate-400 text-xs flex items-center gap-1"><i class="fa-solid fa-trash-can"></i> This message was deleted</p>`;
+                } else if (msg.type === 'audio') {
+                    contentHtml = `
+                        <div class="flex items-center gap-3 py-1">
+                            <button onclick="playAudioMessage(this)" class="w-8 h-8 rounded-full bg-wa-emerald text-white flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-play"></i>
+                            </button>
+                            <div class="flex items-center gap-1 h-4 w-32">
+                                <span class="w-1 h-3 bg-slate-400 rounded-full"></span>
+                                <span class="w-1 h-5 bg-slate-400 rounded-full"></span>
+                                <span class="w-1 h-2 bg-slate-400 rounded-full"></span>
+                                <span class="w-1 h-6 bg-slate-400 rounded-full"></span>
+                                <span class="w-1 h-4 bg-slate-400 rounded-full"></span>
+                            </div>
+                            <span class="text-[10px] text-slate-400">0:05</span>
+                        </div>
+                    `;
+                } else if (msg.type === 'poll') {
+                    contentHtml = `
+                        <div class="space-y-2 min-w-[200px]">
+                            <p class="font-semibold text-xs border-b border-slate-700 pb-1">${msg.question}</p>
+                            ${msg.options.map((opt, i) => `
+                                <button onclick="votePoll('${msg.id}', ${i})" class="w-full text-left bg-wa-darkBg light:bg-slate-100 p-2 rounded text-xs flex justify-between items-center hover:bg-wa-darkHover">
+                                    <span>${opt.text}</span>
+                                    <span class="font-bold text-wa-emerald">${opt.votes}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    `;
+                } else if (msg.type === 'location') {
+                    contentHtml = `
+                        <div class="space-y-1">
+                            <div class="w-48 h-24 bg-slate-800 rounded flex items-center justify-center text-red-500 font-semibold text-xs border border-slate-700">
+                                <i class="fa-solid fa-map-location-dot text-2xl mr-2"></i> Live Location
+                            </div>
+                            <p class="text-xs">Shared live location</p>
+                        </div>
+                    `;
+                } else {
+                    contentHtml = `<p class="text-sm whitespace-pre-wrap break-words">${msg.text} ${msg.edited ? '<span class="text-[10px] opacity-60 italic">(edited)</span>' : ''}</p>`;
+                }
+
+                // Ticks icon for sender
+                let ticks = '<i class="fa-solid fa-check text-slate-400"></i>';
+                if (msg.status === 'delivered') ticks = '<i class="fa-solid fa-check-double text-slate-400"></i>';
+                if (msg.status === 'read') ticks = '<i class="fa-solid fa-check-double text-sky-400"></i>';
+
+                // Reactions Badge
+                let reactionBadges = '';
+                if (msg.reactions && Object.keys(msg.reactions).length > 0) {
+                    reactionBadges = `<div class="absolute -bottom-2 right-2 bg-wa-darkHeader border border-slate-700 rounded-full px-1.5 py-0.5 text-[10px] flex items-center gap-1 shadow">
+                        ${Object.entries(msg.reactions).map(([emoji, count]) => `<span>${emoji} ${count}</span>`).join('')}
+                    </div>`;
+                }
+
+                wrapper.innerHTML = `
+                    <div class="max-w-[75%] rounded-lg p-2.5 shadow-md relative group/bubble ${isMe ? 'bg-emerald-900/80 text-slate-100 rounded-tr-none' : 'bg-wa-darkHeader light:bg-white text-slate-100 light:text-slate-800 rounded-tl-none'} border border-slate-800/50">
+                        ${msg.forwarded ? '<p class="text-[10px] text-slate-400 italic mb-1"><i class="fa-solid fa-share text-[8px]"></i> Forwarded</p>' : ''}
+                        
+                        ${contentHtml}
+
+                        <div class="flex items-center justify-end gap-1 text-[10px] text-slate-400 mt-1">
+                            <span>${msg.time}</span>
+                            ${isMe ? ticks : ''}
+                        </div>
+
+                        ${reactionBadges}
+
+                        <!-- Action Dropdown Trigger -->
+                        <button onclick="toggleMessageMenu(event, '${msg.id}')" class="absolute top-1 right-1 opacity-0 group-hover/bubble:opacity-100 p-1 text-slate-400 hover:text-white transition">
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(wrapper);
+            });
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // --- MESSAGE MENU & ACTIONS ---
+        function toggleMessageMenu(e, msgId) {
+            e.stopPropagation();
+            // Remove existing context menus
+            document.querySelectorAll('.msg-context-menu').forEach(el => el.remove());
+
+            const menu = document.createElement('div');
+            menu.className = 'msg-context-menu absolute z-40 bg-wa-darkHeader light:bg-white border border-slate-700 rounded-lg shadow-xl text-xs text-slate-200 light:text-slate-800 py-1 w-36';
+            menu.style.top = `${e.clientY}px`;
+            menu.style.left = `${e.clientX - 100}px`;
+
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            const msg = chat.messages.find(m => m.id === msgId);
+
+            menu.innerHTML = `
+                <div class="flex justify-around p-1 border-b border-slate-700">
+                    <span onclick="reactToMsg('${msgId}', '❤️')" class="cursor-pointer hover:scale-125">❤️</span>
+                    <span onclick="reactToMsg('${msgId}', '👍')" class="cursor-pointer hover:scale-125">👍</span>
+                    <span onclick="reactToMsg('${msgId}', '😂')" class="cursor-pointer hover:scale-125">😂</span>
+                    <span onclick="reactToMsg('${msgId}', '🔥')" class="cursor-pointer hover:scale-125">🔥</span>
+                </div>
+                ${msg.sender === 'me' ? `<button onclick="openEditModal('${msgId}')" class="w-full text-left px-3 py-1.5 hover:bg-wa-darkHover"><i class="fa-solid fa-pen mr-2"></i> Edit</button>` : ''}
+                <button onclick="copyMsgText('${msgId}')" class="w-full text-left px-3 py-1.5 hover:bg-wa-darkHover"><i class="fa-solid fa-copy mr-2"></i> Copy</button>
+                <button onclick="openForwardModal('${msgId}')" class="w-full text-left px-3 py-1.5 hover:bg-wa-darkHover"><i class="fa-solid fa-share mr-2"></i> Forward</button>
+                <button onclick="pinMessage('${msgId}')" class="w-full text-left px-3 py-1.5 hover:bg-wa-darkHover"><i class="fa-solid fa-thumbtack mr-2"></i> Pin</button>
+                <button onclick="openMsgInfo('${msgId}')" class="w-full text-left px-3 py-1.5 hover:bg-wa-darkHover"><i class="fa-solid fa-circle-info mr-2"></i> Info</button>
+                <button onclick="deleteMsg('${msgId}', 'me')" class="w-full text-left px-3 py-1.5 hover:bg-wa-darkHover text-red-400"><i class="fa-solid fa-trash mr-2"></i> Delete for Me</button>
+                ${msg.sender === 'me' ? `<button onclick="deleteMsg('${msgId}', 'everyone')" class="w-full text-left px-3 py-1.5 hover:bg-wa-darkHover text-red-500"><i class="fa-solid fa-trash-can mr-2"></i> Delete Everyone</button>` : ''}
+            `;
+
+            document.body.appendChild(menu);
+
+            const removeMenu = () => { menu.remove(); document.removeEventListener('click', removeMenu); };
+            setTimeout(() => document.addEventListener('click', removeMenu), 50);
+        }
+
+        // --- SEND TEXT MESSAGE & AUTO-BOT REPLY ---
+        function sendTextMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text || !state.activeChatId) return;
+
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            const newMsg = {
+                id: 'm-' + Date.now(),
+                sender: 'me',
+                text: text,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                status: 'sent',
+                reactions: {}
+            };
+
+            chat.messages.push(newMsg);
+            input.value = '';
+            saveState();
+            renderMessages();
+            renderChatsList();
+
+            // Simulate Read Receipt Pipeline (1 tick -> 2 ticks -> blue ticks)
+            setTimeout(() => {
+                newMsg.status = 'delivered';
+                renderMessages();
+            }, 1000);
+
+            setTimeout(() => {
+                newMsg.status = 'read';
+                renderMessages();
+            }, 2000);
+
+            // Simulate Bot Auto Reply
+            setTimeout(() => {
+                const botReply = {
+                    id: 'm-' + (Date.now() + 1),
+                    sender: 'them',
+                    text: `Received: "${text}". Thanks for messaging!`,
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    status: 'read',
+                    reactions: {}
+                };
+                chat.messages.push(botReply);
+                saveState();
+                renderMessages();
+                renderChatsList();
+            }, 3000);
+        }
+
+        function handleInputKey(e) {
+            if (e.key === 'Enter') sendTextMessage();
+        }
+
+        // --- EDIT MESSAGE ---
+        function openEditModal(msgId) {
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            const msg = chat.messages.find(m => m.id === msgId);
+            state.editingMsgId = msgId;
+            document.getElementById('edit-msg-input').value = msg.text;
+            document.getElementById('edit-msg-modal').classList.remove('hidden');
+        }
+
+        function submitMessageEdit() {
+            const newText = document.getElementById('edit-msg-input').value.trim();
+            if (!newText) return;
+
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            const msg = chat.messages.find(m => m.id === state.editingMsgId);
+            msg.text = newText;
+            msg.edited = true;
+
+            saveState();
+            renderMessages();
+            closeModal('edit-msg-modal');
+            showToast('Message edited');
+        }
+
+        // --- DELETE MESSAGE ---
+        function deleteMsg(msgId, scope) {
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            if (scope === 'me') {
+                chat.messages = chat.messages.filter(m => m.id !== msgId);
+            } else {
+                const msg = chat.messages.find(m => m.id === msgId);
+                msg.deleted = true;
+            }
+            saveState();
+            renderMessages();
+            renderChatsList();
+            showToast('Message deleted');
+        }
+
+        // --- COPY & FORWARD & PIN ---
+        function copyMsgText(msgId) {
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            const msg = chat.messages.find(m => m.id === msgId);
+            navigator.clipboard.writeText(msg.text || '');
+            showToast('Copied to clipboard!');
+        }
+
+        function openForwardModal(msgId) {
+            state.editingMsgId = msgId;
+            const container = document.getElementById('forward-contacts-list');
+            container.innerHTML = '';
+
+            state.chats.forEach(c => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-2 hover:bg-wa-darkHover cursor-pointer rounded-lg';
+                item.onclick = () => forwardToChat(c.id);
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${c.avatar}" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-white">${c.name}</span>
+                    </div>
+                    <i class="fa-solid fa-paper-plane text-wa-emerald text-xs"></i>
+                `;
+                container.appendChild(item);
+            });
+
+            document.getElementById('forward-msg-modal').classList.remove('hidden');
+        }
+
+        function forwardToChat(targetChatId) {
+            const activeChat = state.chats.find(c => c.id === state.activeChatId);
+            const msg = activeChat.messages.find(m => m.id === state.editingMsgId);
+            const targetChat = state.chats.find(c => c.id === targetChatId);
+
+            targetChat.messages.push({
+                ...msg,
+                id: 'm-' + Date.now(),
+                sender: 'me',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                forwarded: true
+            });
+
+            saveState();
+            closeModal('forward-msg-modal');
+            showToast('Forwarded successfully!');
+        }
+
+        function pinMessage(msgId) {
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            chat.pinnedMsgId = msgId;
+            saveState();
+            renderMessages();
+            showToast('Message pinned to top');
+        }
+
+        function unpinCurrentMessage() {
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            chat.pinnedMsgId = null;
+            saveState();
+            renderMessages();
+        }
+
+        function reactToMsg(msgId, emoji) {
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            const msg = chat.messages.find(m => m.id === msgId);
+            if (!msg.reactions) msg.reactions = {};
+            msg.reactions[emoji] = (msg.reactions[emoji] || 0) + 1;
+
+            saveState();
+            renderMessages();
+        }
+
+        // --- MESSAGE INFO DRAWER ---
+        function openMsgInfo(msgId) {
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            const msg = chat.messages.find(m => m.id === msgId);
+
+            document.getElementById('msg-info-preview').innerText = msg.text || 'Media content';
+            document.getElementById('msg-info-read-list').innerHTML = `
+                <div class="flex justify-between items-center">
+                    <span>Sarah Connor</span>
+                    <span class="text-[10px] text-slate-400">Read at ${msg.time}</span>
+                </div>
+            `;
+            document.getElementById('msg-info-delivered-list').innerHTML = `
+                <div class="flex justify-between items-center">
+                    <span>Michael, Alex, Emma</span>
+                    <span class="text-[10px] text-slate-400">Delivered at ${msg.time}</span>
+                </div>
+            `;
+
+            document.getElementById('msg-info-modal').classList.remove('hidden');
+        }
+
+        // --- VOICE RECORDING ---
+        function startVoiceRecording() {
+            document.getElementById('voice-recording-overlay').classList.remove('hidden');
+            recordStartTime = Date.now();
+            recordTimerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - recordStartTime) / 1000);
+                const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                const secs = String(elapsed % 60).padStart(2, '0');
+                document.getElementById('recording-timer').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function cancelVoiceRecording() {
+            clearInterval(recordTimerInterval);
+            document.getElementById('voice-recording-overlay').classList.add('hidden');
+        }
+
+        function stopAndSendVoiceRecording() {
+            cancelVoiceRecording();
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            chat.messages.push({
+                id: 'm-' + Date.now(),
+                sender: 'me',
+                type: 'audio',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                status: 'read',
+                reactions: {}
+            });
+            saveState();
+            renderMessages();
+        }
+
+        function playAudioMessage(btn) {
+            btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-play"></i>'; }, 3000);
+        }
+
+        // --- STATUS / STORIES TAB ---
+        function renderStatusList() {
+            const container = document.getElementById('status-stories-list');
+            container.innerHTML = '';
+
+            state.statusStories.forEach((st, idx) => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center gap-3 p-2 rounded-lg hover:bg-wa-darkHover cursor-pointer';
+                item.onclick = () => openStoryViewer(idx);
+
+                item.innerHTML = `
+                    <div class="p-0.5 rounded-full border-2 border-wa-emerald">
+                        <img src="${st.userAvatar}" class="w-10 h-10 rounded-full object-cover">
+                    </div>
+                    <div>
+                        <h5 class="text-sm font-semibold text-slate-100 light:text-slate-800">${st.userName}</h5>
+                        <p class="text-xs text-slate-400">${st.time}</p>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function openStoryViewer(idx) {
+            activeStoryIndex = idx;
+            const st = state.statusStories[idx];
+
+            document.getElementById('story-viewer-avatar').src = st.userAvatar;
+            document.getElementById('story-viewer-name').innerText = st.userName;
+            document.getElementById('story-viewer-time').innerText = st.time;
+            document.getElementById('story-text-content').innerText = st.text;
+            document.getElementById('story-views-count').innerText = `${st.views.length} views`;
+
+            const likeBtn = document.getElementById('story-like-btn');
+            likeBtn.innerHTML = st.liked ? '<i class="fa-solid fa-heart text-red-500"></i>' : '<i class="fa-regular fa-heart"></i>';
+
+            document.getElementById('story-viewer-modal').classList.remove('hidden');
+
+            // Auto progress bar
+            let progress = 0;
+            const bar = document.getElementById('story-progress');
+            clearInterval(storyProgressInterval);
+            storyProgressInterval = setInterval(() => {
+                progress += 2;
+                bar.style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(storyProgressInterval);
+                    closeStoryViewer();
+                }
+            }, 100);
+        }
+
+        function closeStoryViewer() {
+            clearInterval(storyProgressInterval);
+            document.getElementById('story-viewer-modal').classList.add('hidden');
+        }
+
+        function toggleStoryLike() {
+            const st = state.statusStories[activeStoryIndex];
+            st.liked = !st.liked;
+            saveState();
+            openStoryViewer(activeStoryIndex);
+        }
+
+        function sendStoryReply() {
+            const input = document.getElementById('story-reply-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const st = state.statusStories[activeStoryIndex];
+            const chat = state.chats.find(c => c.name === st.userName) || state.chats[0];
+
+            chat.messages.push({
+                id: 'm-' + Date.now(),
+                sender: 'me',
+                text: `Replied to story: "${text}"`,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                status: 'read'
+            });
+
+            input.value = '';
+            saveState();
+            closeStoryViewer();
+            showToast('Reply sent to chat!');
+        }
+
+        function openViewerListDrawer() {
+            const st = state.statusStories[activeStoryIndex];
+            const container = document.getElementById('story-viewers-list');
+            container.innerHTML = st.views.map(v => `
+                <div class="flex items-center justify-between text-xs text-slate-300">
+                    <span>${v.name}</span>
+                    <span class="text-slate-500">${v.time}</span>
+                </div>
+            `).join('');
+            document.getElementById('story-viewers-drawer').classList.remove('hidden');
+        }
+
+        function closeViewerListDrawer() {
+            document.getElementById('story-viewers-drawer').classList.add('hidden');
+        }
+
+        function openAddStatusModal() {
+            document.getElementById('add-status-modal').classList.remove('hidden');
+        }
+
+        function submitNewStatus() {
+            const text = document.getElementById('status-text-input').value.trim();
+            if (!text) return;
+
+            state.statusStories.unshift({
+                id: 'st-' + Date.now(),
+                userName: state.currentUser.name,
+                userAvatar: state.currentUser.avatar,
+                time: 'Just now',
+                text: text,
+                liked: false,
+                views: []
+            });
+
+            saveState();
+            renderStatusList();
+            closeModal('add-status-modal');
+            showToast('Status posted!');
+        }
+
+        // --- CALLS TAB & CALL OVERLAY ---
+        function renderCallsList() {
+            const container = document.getElementById('tab-calls');
+            container.innerHTML = '';
+
+            state.calls.forEach(call => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-3 hover:bg-wa-darkHover';
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${call.avatar}" class="w-10 h-10 rounded-full object-cover">
+                        <div>
+                            <h5 class="text-sm font-semibold text-slate-100">${call.name}</h5>
+                            <p class="text-xs text-slate-400"><i class="fa-solid fa-arrow-down-left text-green-500"></i> ${call.time}</p>
+                        </div>
+                    </div>
+                    <button onclick="startVoiceCall()" class="text-wa-emerald p-2"><i class="fa-solid fa-phone"></i></button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function startVoiceCall() {
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            document.getElementById('call-name').innerText = chat ? chat.name : 'User';
+            document.getElementById('call-avatar').src = chat ? chat.avatar : '';
+            document.getElementById('video-feed-frame').classList.add('hidden');
+            document.getElementById('call-overlay').classList.remove('hidden');
+        }
+
+        function startVideoCall() {
+            startVoiceCall();
+            document.getElementById('video-feed-frame').classList.remove('hidden');
+        }
+
+        function endCall() {
+            document.getElementById('call-overlay').classList.add('hidden');
+        }
+
+        // --- POLL CREATOR & ATTACHMENTS ---
+        function toggleAttachMenu() {
+            document.getElementById('attach-menu').classList.toggle('hidden');
+        }
+
+        function openPollCreator() {
+            toggleAttachMenu();
+            document.getElementById('poll-modal').classList.remove('hidden');
+        }
+
+        function addPollOptionField() {
+            const container = document.getElementById('poll-options-container');
+            const input = document.createElement('input');
+            input.className = 'poll-opt-input w-full bg-wa-darkBg border border-wa-darkBorder rounded-lg p-2 text-xs text-white';
+            input.placeholder = `Option ${container.children.length + 1}`;
+            container.appendChild(input);
+        }
+
+        function submitPoll() {
+            const q = document.getElementById('poll-question').value.trim();
+            const optionInputs = document.querySelectorAll('.poll-opt-input');
+            const options = [];
+            optionInputs.forEach(i => { if (i.value.trim()) options.push({ text: i.value.trim(), votes: 0 }); });
+
+            if (!q || options.length < 2) return;
+
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            chat.messages.push({
+                id: 'm-' + Date.now(),
+                sender: 'me',
+                type: 'poll',
+                question: q,
+                options: options,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                status: 'read'
+            });
+
+            saveState();
+            renderMessages();
+            closeModal('poll-modal');
+        }
+
+        function votePoll(msgId, optIdx) {
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            const msg = chat.messages.find(m => m.id === msgId);
+            msg.options[optIdx].votes++;
+            saveState();
+            renderMessages();
+        }
+
+        function shareLocationCard() {
+            toggleAttachMenu();
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            chat.messages.push({
+                id: 'm-' + Date.now(),
+                sender: 'me',
+                type: 'location',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                status: 'read'
+            });
+            saveState();
+            renderMessages();
+        }
+
+        // --- NEW GROUP MODAL ---
+        function openNewGroupModal() {
+            const container = document.getElementById('group-contacts-selection');
+            container.innerHTML = state.chats.map(c => `
+                <label class="flex items-center gap-3 p-2 hover:bg-wa-darkHover rounded cursor-pointer">
+                    <input type="checkbox" value="${c.name}" class="group-contact-chk accent-wa-emerald">
+                    <img src="${c.avatar}" class="w-8 h-8 rounded-full">
+                    <span class="text-sm text-white">${c.name}</span>
+                </label>
+            `).join('');
+            document.getElementById('new-group-modal').classList.remove('hidden');
+        }
+
+        function submitCreateGroup() {
+            const name = document.getElementById('group-name-input').value.trim();
+            const checkboxes = document.querySelectorAll('.group-contact-chk:checked');
+            const members = [state.currentUser.name];
+            checkboxes.forEach(c => members.push(c.value));
+
+            if (!name) return;
+
+            const newGroup = {
+                id: 'chat-' + Date.now(),
+                name: name,
+                avatar: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=150',
+                isGroup: true,
+                online: true,
+                unread: 0,
+                members: members,
+                messages: [
+                    { id: 'm-1', sender: 'them', text: `Group "${name}" created.`, time: 'Just now', status: 'read' }
+                ]
+            };
+
+            state.chats.unshift(newGroup);
+            saveState();
+            renderChatsList();
+            closeModal('new-group-modal');
+            selectChat(newGroup.id);
+        }
+
+        // --- SETTINGS & THEMES ---
+        function openSettingsModal() {
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+
+        function setTheme(theme) {
+            state.theme = theme;
+            saveState();
+            applySavedState();
+        }
+
+        function setWallpaper(wp) {
+            state.wallpaper = wp;
+            saveState();
+            if (state.activeChatId) selectChat(state.activeChatId);
+        }
+
+        function setAccent(color) {
+            state.accent = color;
+            saveState();
+            showToast('Accent color updated');
+        }
+
+        function changeLanguage(lang) {
+            state.language = lang;
+            saveState();
+            applyTranslations(lang);
+        }
+
+        function applyTranslations(lang) {
+            const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+            
+            // Text Replacements
+            document.getElementById('tr-welcome').innerText = t.welcome;
+            document.getElementById('tr-subtitle').innerText = t.subtitle;
+            document.getElementById('tr-lbl-name').innerText = t.lblName;
+            document.getElementById('tr-lbl-bio').innerText = t.lblBio;
+            document.getElementById('tr-lbl-avatar').innerText = t.lblAvatar;
+            document.getElementById('tr-btn-login').innerText = t.btnLogin;
+            document.getElementById('tr-my-status').innerText = t.myStatus;
+            document.getElementById('tr-add-status-hint').innerText = t.addStatusHint;
+            document.getElementById('tr-recent-updates').innerText = t.recentUpdates;
+            document.getElementById('tr-ph-title').innerText = t.phTitle;
+            document.getElementById('tr-ph-desc').innerText = t.phDesc;
+            document.getElementById('tr-ph-e2e').innerText = t.phE2e;
+            document.getElementById('tr-pinned-label').innerText = t.pinnedLabel;
+            document.getElementById('tr-edit-title').innerText = t.editTitle;
+            document.getElementById('tr-forward-title').innerText = t.forwardTitle;
+            document.getElementById('tr-info-title').innerText = t.infoTitle;
+            document.getElementById('tr-attach-poll').innerText = t.attachPoll;
+            document.getElementById('tr-attach-location').innerText = t.attachLocation;
+            document.getElementById('tr-attach-photo').innerText = t.attachPhoto;
+            document.getElementById('tr-settings-title').innerText = t.settingsTitle;
+            document.getElementById('tr-theme-label').innerText = t.themeLabel;
+            document.getElementById('tr-lang-label').innerText = t.langLabel;
+            document.getElementById('tr-wallpaper-label').innerText = t.wallpaperLabel;
+            document.getElementById('tr-accent-label').innerText = t.accentLabel;
+
+            // Handle RTL languages
+            if (lang === 'ur' || lang === 'ar') {
+                document.documentElement.dir = 'rtl';
+            } else {
+                document.documentElement.dir = 'ltr';
+            }
+        }
+
+        // --- HELPER UTILITIES ---
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function showToast(text) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-wa-emerald text-white text-xs font-medium px-4 py-2.5 rounded-lg shadow-xl animate-bounce';
+            toast.innerText = text;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        function toggleEmojiPicker() {
+            document.getElementById('emoji-picker').classList.toggle('hidden');
+        }
+
+        function insertEmoji(emoji) {
+            const input = document.getElementById('chat-input');
+            input.value += emoji;
+            toggleEmojiPicker();
+        }
+    </script>
+</body>
+</html>
